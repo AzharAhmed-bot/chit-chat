@@ -36,24 +36,7 @@ class User(db.Model,SerializerMixin):
             raise ValueError('Invalid phone number')
         return value
 
-class Groups(db.Model):
-    __tablename__='groups'
-    #Rules
-    serializer_rules=('-user_groups.groups')
-    id=db.Column(db.Integer,primary_key=True)
 
-class User_groups(db.Model, SerializerMixin):
-    __tablename__='user_groups'
-    # Rules
-    serializer_rules=('-user','-groups')
-    
-    
-    id=db.Column(db.Integer,primary_key=True)
-    user_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
-    group_id=db.Column(db.Integer,db.ForeignKey('groups.id'),nullable=False)
-
-    user=db.relationship('User',backref='user_groups')
-    groups=db.relationship('Groups',backref='user_groups')
 
 
 
