@@ -3,6 +3,7 @@
 # # CREATE OR REPLACE TABLE users;
 import uuid
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
 # from sqlalchemy_serializer import SerializerMixin
 import re
@@ -21,8 +22,8 @@ class User(db.Model):
     id=db.Column(db.String(36),primary_key=True,default=lambda: str(uuid.uuid4()))
     name=db.Column(db.String(100), nullable=False)
     phone_number=db.Column(db.String(100), nullable=False)
-    created_at=db.Column(db.DateTime,default=db.func.current_timesstamp())
-    updated_at=db.Column(db.DateTime,default=db.func.current_timesstamp(),onupdate=db.func.current_timestamp())
+    created_at=db.Column(db.DateTime,default=db.func.current_timestamp())
+    updated_at=db.Column(db.DateTime,default=db.func.current_timestamp(),onupdate=db.func.current_timestamp())
     
 
     
@@ -72,7 +73,7 @@ class Message(db.Model):
 class MessageStatus(db.Model):
     __tablename__='message_status'
     user_id=db.Column(db.String(36),db.ForeignKey('users.id'),primary_key=True)
-    Message_id=db.Column(db.String(36),db.ForeignKey('messages.id'),Primary_Key=True)
+    Message_id=db.Column(db.String(36),db.ForeignKey('messages.id'),primary_key=True)
     delivered_at=db.Column(db.DateTime)
     seen_at=db.Column(db.DateTime)
     
