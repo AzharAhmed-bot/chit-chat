@@ -19,7 +19,7 @@ class User(db.Model):
     __tablename__='users'
     # serializer_rules=('-user_groups.user')
 
-    id=db.Column(db.String(36),primary_key=True,default=lambda: str(uuid.uuid4()))
+    id=db.Column(UUID(as_uuid=True),primary_key=True,default=lambda: str(uuid.uuid4()))
     name=db.Column(db.String(100), nullable=False)
     phone_number=db.Column(db.String(100), nullable=False)
     created_at=db.Column(db.DateTime,default=db.func.current_timestamp())
@@ -38,7 +38,7 @@ class User(db.Model):
     
 class Group(db.Model):
      __tablename__='groups'
-     id=db.Column(db.String(36),db.ForeignKey('chats.id'),primary_key=True)
+     id=db.Column(UUID(as_uuid=True),db.ForeignKey('chats.id'),primary_key=True)
      name=db.Column(db.String(100),nullable=False)
      description=db.Column(db.Text)
      created_by=db.Column(UUID(as_uuid=True),db.ForeignKey('users.id'),nullable=False)
@@ -48,23 +48,23 @@ class Group(db.Model):
 class ChatMembers(db.Model):
     __tablename__='chat_members'
     user_id=db.Column(UUID(as_uuid=True),db.ForeignKey('users.id'),primary_key=True)
-    chat_id_id=db.Column(UUID(as_uuid=True),db.ForeignKey('chats.id'),primary_key=True)
+    chat_id=db.Column(UUID(as_uuid=True),db.ForeignKey('chats.id'),primary_key=True)
     joined_at=db.Column(db.DateTime,default=db.func.current_timestamp())
     left_at=db.Column(db.DateTime)
 
 
 class Chat(db.Model):
     __tablename__='chats'
-    id=db.Column(db.String(36),primary_key=True,default=lambda :str(uuid.uuid4()))
+    id=db.Column(UUID(as_uuid=True),primary_key=True,default=lambda :str(uuid.uuid4()))
     is_group=db.Column(db.Boolean,default=False)
     createdAt=db.Column(db.DateTime,default=db.func.current_timestamp())
 
 
 class Message(db.Model):
     __tablename__='messages'
-    id=db.Column(db.String(36),primary_key=True)
-    user_id=db.Column(db.String(36),db.ForeignKey('users.id'),nullable=False)
-    chat_id=db.Column(db.String(36),db.ForeignKey('chats.id'),nullable=False)
+    id=db.Column(UUID(as_uuid=True),primary_key=True)
+    user_id=db.Column(UUID(as_uuid=True),db.ForeignKey('users.id'),nullable=False)
+    chat_id=db.Column(UUID(as_uuid=True),db.ForeignKey('chats.id'),nullable=False)
     type=db.Column(db.String(20))
     content=db.Column(db.Text)
     sent_at = db.Column(db.DateTime, default=db.func.current_timestamp())  
@@ -72,8 +72,8 @@ class Message(db.Model):
     
 class MessageStatus(db.Model):
     __tablename__='message_status'
-    user_id=db.Column(db.String(36),db.ForeignKey('users.id'),primary_key=True)
-    Message_id=db.Column(db.String(36),db.ForeignKey('messages.id'),primary_key=True)
+    user_id=db.Column(UUID(as_uuid=True),db.ForeignKey('users.id'),primary_key=True)
+    Message_id=db.Column(UUID(as_uuid=True),db.ForeignKey('messages.id'),primary_key=True)
     delivered_at=db.Column(db.DateTime)
     seen_at=db.Column(db.DateTime)
     
