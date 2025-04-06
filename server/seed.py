@@ -7,17 +7,10 @@ from datetime import datetime
 
 def seed():
 
-    user_1=User(id=str(uuid.uuid4()), name="Alice", phone_number="+254773470576")
-    user_2=User(id=str(uuid.uuid4()), name="Bob", phone_number="+254773470576")
-    user_3=User(id=str(uuid.uuid4()), name="Charlie", phone_number="+254773470576")
-    message_1=Message(id=str(uuid.uuid4()),user_id=user_1.id,chat_id=Chat.id,type="text",content='Hey girl',sent_at=datetime.utcnow())
-    message_2=Message(id=str(uuid.uuid4()),user_id=user_2.id,chat_id=Chat.id,type="text",content='girllly',sent_at=datetime.utcnow())
-     
-    message_status1=MessageStatus(user_id=User.id,message_id=Message.id,delivered_at=datetime.utcnow(),seen_at=datetime.utcnow() )
-
-
-    db.session.add_all([user_1, user_2, user_3,message_1,message_2])
-    db.session.commit()
+    user_1=User(id=uuid.uuid4(), name="Alice", phone_number="+254773470576")
+    user_2=User(id=uuid.uuid4(), name="Bob", phone_number="+254773470576")
+    user_3=User(id=uuid.uuid4(), name="Charlie", phone_number="+254773470576")
+    
    
 
     private_chat = Chat(id=uuid.uuid4(), is_group=False, createdAt=db.func.current_timestamp())
@@ -50,6 +43,18 @@ def seed():
         ChatMembers(user_id=user_2.id, chat_id=group_chat.id, joined_at=db.func.current_timestamp()),
         ChatMembers(user_id=user_3.id, chat_id=group_chat.id, joined_at=db.func.current_timestamp())
     ])
+    db.session.commit()
+
+    message_1=Message(id=uuid.uuid4(),user_id=user_1.id,chat_id=private_chat.id,type="text",content='Hey girl',sent_at=datetime.utcnow())
+    message_2=Message(id=uuid.uuid4(),user_id=user_2.id,chat_id=private_chat.id,type="text",content='girllly',sent_at=datetime.utcnow())
+    db.session.add_all([message_1,message_2])
+    db.session.commit()
+     
+    message_status1=MessageStatus(user_id=user_1.id,message_id=message_1.id,delivered_at=datetime.utcnow(),seen_at=datetime.utcnow() )
+    db.session.add(message_status1)
+
+    #Bulk adding
+    db.session.add_all([user_1, user_2, user_3])
     db.session.commit()
 
 

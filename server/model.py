@@ -73,7 +73,7 @@ class Message(db.Model):
 class MessageStatus(db.Model):
     __tablename__='message_status'
     user_id=db.Column(UUID(as_uuid=True),db.ForeignKey('users.id'),primary_key=True)
-    Message_id=db.Column(UUID(as_uuid=True),db.ForeignKey('messages.id'),primary_key=True)
+    message_id=db.Column(UUID(as_uuid=True),db.ForeignKey('messages.id'),primary_key=True)
     delivered_at=db.Column(db.DateTime)
     seen_at=db.Column(db.DateTime)
     
