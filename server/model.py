@@ -1,7 +1,7 @@
 # # Will hold the database structure
 # # Create tables in SQL
 # # CREATE OR REPLACE TABLE users;
-
+import uuid
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 # from sqlalchemy_serializer import SerializerMixin
@@ -18,17 +18,14 @@ class User(db.Model):
     __tablename__='users'
     # serializer_rules=('-user_groups.user')
 
-    id=db.Column(db.Integer,primary_key=True)
+    id=db.Column(db.String(36),primary_key=True,default=lambda: str(uuid.uuid4()))
     name=db.Column(db.String(100), nullable=False)
-    email=db.Column(db.String(100), nullable=False,unique=True)
     phone_number=db.Column(db.String(100), nullable=False)
-    password=db.Column(db.String(100),nullable=False)
+    created_at=db.Column(db.DateTime,default=db.func.current_timesstamp())
+    updated_at=db.Column(db.DateTime,default=db.func.current_timesstamp(),onupdate=db.func.current_timestamp())
+    
 
-    @validates('email')
-    def validate_email(self,key,value):
-        if not re.match(email_pattern,value):
-            raise ValueError('Invalid email')
-        return value
+    
 
     @validates('phone_number')
     def validate_phone_number(self,key,value):
@@ -43,18 +40,25 @@ class Group(db.Model):
      id=db.Column(db.String(36),db.ForeignKey('chats.id'),primary_key=True)
      name=db.Column(db.String(100),nullable=False)
      description=db.Column(db.Text)
-     createdBy=db.Column(db.String(36),db.ForeignKey('users.id'),nullable=False)
-     createdAt=db.Column(db.DateTime,default=db.func.current_timestamp())
-class UserChat(db.Model):
-    __tablename__='users_chats'
-    id=db.Column(db.String(36),primary_key=True)
-    user_id=db.Column(db.String(36),db.ForeignKey('users.id'),nullable=False)
-    chat_id=db.Column(db.String(36),db.ForeignKey('chats.id'),nullable=False)
+     created_by=db.Column(UUID(as_uuid=True),db.ForeignKey('users.id'),nullable=False)
+     created_at=db.Column(db.DateTime,default=db.func.current_timestamp())
+
+
+class ChatMembers(db.Model):
+    __tablename__='chat_members'
+    user_id=db.Column(UUID(as_uuid=True),db.ForeignKey('users.id'),primary_key=True)
+    chat_id_id=db.Column(UUID(as_uuid=True),db.ForeignKey('chats.id'),primary_key=True)
+    joined_at=db.Column(db.DateTime,default=db.func.current_timestamp())
+    left_at=db.Column(db.DateTime)
+
+
 class Chat(db.Model):
     __tablename__='chats'
-    id=db.Column(db.String(36),db.ForeignKey('chats.id'),primary_key=True)
+    id=db.Column(db.String(36),primary_key=True,default=lambda :str(uuid.uuid4()))
     is_group=db.Column(db.Boolean,default=False)
     createdAt=db.Column(db.DateTime,default=db.func.current_timestamp())
+
+
 class Message(db.Model):
     __tablename__='messages'
     id=db.Column(db.String(36),primary_key=True)
@@ -62,12 +66,16 @@ class Message(db.Model):
     chat_id=db.Column(db.String(36),db.ForeignKey('chats.id'),nullable=False)
     type=db.Column(db.String(20))
     content=db.Column(db.Text)
-    sentAt = db.Column(db.DateTime, default=db.func.current_timestamp())  
-    deliveredAt=db.Column(db.DateTime)
-    seenAt=db.Column(db.DateTime)
-
-
-
+    sent_at = db.Column(db.DateTime, default=db.func.current_timestamp())  
+    deleted_at=db.Column(db.DateTime)
+    
+class MessageStatus(db.Model):
+    __tablename__='message_status'
+    user_id=db.Column(db.String(36),db.ForeignKey('users.id'),primary_key=True)
+    Message_id=db.Column(db.String(36),db.ForeignKey('messages.id'),Primary_Key=True)
+    delivered_at=db.Column(db.DateTime)
+    seen_at=db.Column(db.DateTime)
+    
 
 
 
