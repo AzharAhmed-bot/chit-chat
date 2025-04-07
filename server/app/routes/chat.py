@@ -39,7 +39,16 @@ class Login(Resource):
 
 api.add_resource(Login, '/login')
 
-
+class Logout(Resource):
+    def post(self):
+        data=request.get_json()
+        phone_number=data.get('phone_number')
+        user=User.query.filter_by(phone_number=phone_number).first()
+        if user:
+            return {'message':'Logout success'},200
+        else:
+            return {'message':'User not found'},404
+api.add_resource(Logout,'/logout')
 
 
 
