@@ -1,5 +1,5 @@
-from server.app.routes.chat import db, app
-from server.app.routes.model import User, Chat, Message, MessageStatus, ChatMembers, Group
+from server.chat import db, app
+from server.model import User, Chat, Message, MessageStatus, ChatMembers, Group
 import uuid
 from datetime import datetime
 

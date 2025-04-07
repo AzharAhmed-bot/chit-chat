@@ -1,0 +1,8 @@
+Flask
+Flask-SQLAlchemy
+Flask-Session
+Flask-SocketIO
+Flask-Cors
+Flask
+Flask-JWT-Extended
+Flask-RESTful
