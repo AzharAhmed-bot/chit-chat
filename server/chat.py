@@ -48,6 +48,7 @@ class Logout(Resource):
             return {'message':'Logout success'},200
         else:
             return {'message':'User not found'},404
+
 api.add_resource(Logout,'/logout')
 
 
