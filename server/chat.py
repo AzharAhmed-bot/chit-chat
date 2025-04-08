@@ -1,21 +1,27 @@
 from flask import Flask, make_response, jsonify, request, session
 from flask_restful import Api, Resource
-from model import db, User
+from flask_session import Session
+from flask_jwt_extended import JWTManager,create_access_token
+from model import db, User,Chat,ChatMembers
 from config import AppConfig
 import uuid
 
 # Flask app setup
 app = Flask(__name__)
 app.config.from_object(AppConfig)
-app.secret_key = 'super-secret-key'  # Flask session key
 db.init_app(app)
 api = Api(app)
+jwt=JWTManager(app)
+sess=Session(app)
+
 # with app.app_context():
 #     db.drop_all()
 #     db.create_all()
 
 
-# Simulated OTP store (in-memory)
+
+
+# Server side sessioning 
 simulated_otp_store = {}
 
 @app.route('/')
@@ -61,9 +67,9 @@ class Login(Resource):
                 return {'message': 'OTP is required for verification'}, 400
             expected_otp = simulated_otp_store.get(phone_number)
             if expected_otp and str(expected_otp) == str(otp):
-                token = str(uuid.uuid4())
+                token=create_access_token(identity=phone_number)
                 session['user'] = {
-                    'phone_number': phone_number,
+                    'user_id': user.id,
                     'token': token
                 }
                 simulated_otp_store.pop(phone_number, None)
@@ -78,16 +84,33 @@ class Login(Resource):
 
 api.add_resource(Login, '/login')
 
+
+class Chats(Resource):
+    def get(self):
+        user = session.get('user')
+        user_id = uuid.UUID(user['user_id'])
+        chat_members=ChatMembers.query.filter_by(user_id=user_id).all()
+        return {
+            'People': [
+                {
+                    'id': str(chat.chat_id),
+
+                } for chat in chat_members
+            ]
+        }, 200
+        
+
+api.add_resource(Chats, '/chats')
+
+
+
+
+
 class Logout(Resource):
     def post(self):
-        data = request.get_json()
-        phone_number = data.get('phone_number')
-        user = User.query.filter_by(phone_number=phone_number).first()
-        if user:
-            return {'message': 'Logout success'}, 200
-        else:
-            return {'message': 'User not found'}, 404
-
+        session.pop('user', None)  # Removes session
+        return {'message': 'Logout success'}, 200
+    
 api.add_resource(Logout, '/logout')
 
 if __name__ == "__main__":
