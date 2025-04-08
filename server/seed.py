@@ -9,8 +9,8 @@ from datetime import datetime
 def seed():
 
     user_1=User(id=uuid.uuid4(), name="Alice", phone_number="+254773470576")
-    user_2=User(id=uuid.uuid4(), name="Bob", phone_number="+254773470576")
-    user_3=User(id=uuid.uuid4(), name="Charlie", phone_number="+254773470576")
+    user_2=User(id=uuid.uuid4(), name="Bob", phone_number="+254773470577")
+    user_3=User(id=uuid.uuid4(), name="Charlie", phone_number="+254773470578")
     
    
 
