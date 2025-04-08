@@ -1,7 +1,8 @@
-from server.chat import db, app
-from server.model import User, Chat, Message, MessageStatus, ChatMembers, Group
+from chat import db, app
+from model import User, Chat, Message, MessageStatus, ChatMembers, Group
 import uuid
 from datetime import datetime
+
 
 #SESSION
 

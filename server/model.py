@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
 # from sqlalchemy_serializer import SerializerMixin
 import re
+from datetime import datetime
 
 db=SQLAlchemy()
 email_pattern = r'^[a-zA-Z0-9._%+-]+@gmail\.com$'
@@ -22,9 +23,10 @@ class User(db.Model):
     id=db.Column(UUID(as_uuid=True),primary_key=True,default=lambda: str(uuid.uuid4()))
     name=db.Column(db.String(100), nullable=False)
     phone_number=db.Column(db.String(100), nullable=False)
-    created_at=db.Column(db.DateTime,default=db.func.current_timestamp())
-    updated_at=db.Column(db.DateTime,default=db.func.current_timestamp(),onupdate=db.func.current_timestamp())
-    
+    # created_at=db.Column(db.DateTime,default=db.func.current_timestamp())
+    # updated_at=db.Column(db.DateTime,default=db.func.current_timestamp(),onupdate=db.func.current_timestamp())
+    created_at =db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at =db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     
 
