@@ -2,8 +2,10 @@ from flask import Flask, make_response, jsonify, request, session
 from flask_restful import Api, Resource
 from flask_session import Session
 from flask_jwt_extended import JWTManager,create_access_token
-from model import db, User,Chat,ChatMembers
+from model import db, User,Chat,ChatMembers,Message
 from config import AppConfig
+from uuid import UUID
+
 import uuid
 
 # Flask app setup
@@ -101,6 +103,24 @@ class Chats(Resource):
         
 
 api.add_resource(Chats, '/chats')
+
+class ChatMessages(Resource):
+    def get(self,chat_id):
+        chat_id = UUID("87703d8a-8f84-4a06-b85c-362053a74589")
+        chat=Chat.query.get(chat_id)
+        if not chat:
+            return{'message':'chat not found'},404
+        messages=Message.query.filter_by(chat_id=chat_id).order_by(Message.sent_at).all()
+        message_list=[
+            {
+            'userid':str(message.user_id),
+            'content':message.content
+            }for message in messages
+        ]
+        return{
+            'id':str(chat_id),
+            'messages':message_list
+        },200
 
 
 
