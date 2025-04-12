@@ -105,22 +105,29 @@ class Chats(Resource):
 api.add_resource(Chats, '/chats')
 
 class ChatMessages(Resource):
-    def get(self,chat_id):
-        chat_id = UUID("87703d8a-8f84-4a06-b85c-362053a74589")
-        chat=Chat.query.get(chat_id)
+    def get(self, chat_id):
+        chat_id = UUID(chat_id)
+        chat = Chat.query.get(chat_id)
+
         if not chat:
-            return{'message':'chat not found'},404
-        messages=Message.query.filter_by(chat_id=chat_id).order_by(Message.sent_at).all()
-        message_list=[
+            return {'message': 'chat not found'}, 404
+
+        messages = Message.query.filter_by(chat_id=chat_id).order_by(Message.sent_at).all()
+        message_list = [
             {
-            'userid':str(message.user_id),
-            'content':message.content
-            }for message in messages
+                'userid': str(message.user_id),
+                'content': message.content
+            } for message in messages
         ]
-        return{
-            'id':str(chat_id),
-            'messages':message_list
-        },200
+
+        return make_response(jsonify({
+            'chat_id': str(chat_id),
+            'messages': message_list
+        }), 200)
+
+
+api.add_resource(ChatMessages, '/messages')
+
 
 
 
