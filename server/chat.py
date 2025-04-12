@@ -115,7 +115,7 @@ class ChatMessages(Resource):
         messages = Message.query.filter_by(chat_id=chat_id).order_by(Message.sent_at).all()
         message_list = [
             {
-                'userid': str(message.user_id),
+                'user_id': str(message.user_id),
                 'content': message.content
             } for message in messages
         ]
@@ -125,8 +125,8 @@ class ChatMessages(Resource):
             'messages': message_list
         }), 200)
 
-
-api.add_resource(ChatMessages, '/messages')
+# Modified to receive chat id as a parameter
+api.add_resource(ChatMessages, '/messages/<string:chat_id>')
 
 
 
