@@ -58,6 +58,9 @@ class Chat(db.Model):
     id=db.Column(UUID(as_uuid=True),primary_key=True,default=lambda :str(uuid.uuid4()))
     is_group=db.Column(db.Boolean,default=False)
     createdAt=db.Column(db.DateTime,default=db.func.current_timestamp())
+    
+    messages = db.relationship('Message', backref='chat', lazy=True)
+
 
 
 class Message(db.Model):
