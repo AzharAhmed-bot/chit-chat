@@ -2,7 +2,7 @@ from flask import Flask, make_response, jsonify, request, session
 from flask_restful import Api, Resource
 from flask_session import Session
 from flask_jwt_extended import JWTManager,create_access_token
-from model import db, User,Chat,ChatMembers,Message
+from model import db, User,Chat,ChatMembers,Message,Group
 from config import AppConfig
 from uuid import UUID
 
@@ -90,16 +90,36 @@ api.add_resource(Login, '/login')
 class Chats(Resource):
     def get(self):
         user = session.get('user')
-        user_id = uuid.UUID(user['user_id'])
-        chat_members=ChatMembers.query.filter_by(user_id=user_id).all()
-        return {
-            'People': [
-                {
-                    'id': str(chat.chat_id),
+        if not user:
+            return {'message': 'Unauthorized'}, 401
 
-                } for chat in chat_members
-            ]
-        }, 200
+        user_id = uuid.UUID(user['user_id'])
+        chat_memberships = ChatMembers.query.filter_by(user_id=user_id).all()
+        print(chat_memberships)
+        result = []
+
+        for membership in chat_memberships:
+            chat = Chat.query.get(membership.chat_id)
+
+            if chat.is_group:
+                group = Group.query.filter_by(id=chat.id).first()
+                chat_name = group.name if group else "Unnamed Group"
+            else:
+                # Get the other user in the chat
+                other_membership = ChatMembers.query.filter(
+                    ChatMembers.chat_id == chat.id,
+                    ChatMembers.user_id != user_id
+                ).first()
+                other_user = User.query.get(other_membership.user_id) if other_membership else None
+                chat_name = other_user.name if other_user else "Unknown User"
+
+            result.append({
+                'chat_id': str(chat.id),
+                'chat_name': chat_name,
+                'is_group': chat.is_group
+            })
+
+        return {'chats': result}, 200
         
 
 api.add_resource(Chats, '/chats')
