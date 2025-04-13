@@ -144,13 +144,37 @@ class ChatMessages(Resource):
             'chat_id': str(chat_id),
             'messages': message_list
         }), 200)
+    
 
 # Modified to receive chat id as a parameter
 api.add_resource(ChatMessages, '/messages/<string:chat_id>')
 
+obj={
+    "name": "Azhar",
+    "bestie": "Zaki",
+    "content": "Hello, how are you?"
+}
+all_my_otps=[]
+otp=None
+
+# I've gotten a request from my client lets say the request is the creating an account
+# Now 
+
+# get,post,put,patch,delete
+class Test(Resource):
+    def get(self):
+        return jsonify(obj)
+    def post(self):
+        # There is this object called request
+        data=request.get_json()
+        otp=data.get('otp')
+        otp=otp
+        return jsonify(obj)
 
 
 
+
+api.add_resource(Test,'/test')
 
 
 class Logout(Resource):
@@ -159,6 +183,10 @@ class Logout(Resource):
         return {'message': 'Logout success'}, 200
     
 api.add_resource(Logout, '/logout')
+
+
+
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
