@@ -1,10 +1,14 @@
+from datetime import datetime
 from flask import Flask, make_response, jsonify, request, session
+from flask_socketio import SocketIO,join_room,emit
+from flask_cors import CORS
 from flask_restful import Api, Resource
 from flask_session import Session
 from flask_jwt_extended import JWTManager,create_access_token
 from model import db, User,Chat,ChatMembers,Message,Group
 from config import AppConfig
 from uuid import UUID
+import uuid
 
 import uuid
 
@@ -15,6 +19,10 @@ db.init_app(app)
 api = Api(app)
 jwt=JWTManager(app)
 sess=Session(app)
+socketio=SocketIO(app,cors_allowed_origins="*")
+CORS(app, supports_credentials=True)
+
+
 
 # with app.app_context():
 #     db.drop_all()
@@ -59,6 +67,8 @@ class Login(Resource):
                 return {'message': 'Phone number not found'}, 404
             simulated_otp = 334322  # Simulated OTP
             simulated_otp_store[phone_number] = simulated_otp
+            session['otp_requested'] = True
+            print(session['otp_requested'])
             print(f"Simulated OTP for {phone_number}: {simulated_otp}")
             return {'message': 'OTP sent successfully (simulated)'}, 200
 
@@ -75,6 +85,7 @@ class Login(Resource):
                     'token': token
                 }
                 simulated_otp_store.pop(phone_number, None)
+                session.pop('otp_requested', None)
                 return {
                     'message': 'OTP verified successfully',
                     'token': token
@@ -85,6 +96,8 @@ class Login(Resource):
             return {'message': 'Invalid mode. Use "request" or "verify".'}, 400
 
 api.add_resource(Login, '/login')
+
+
 
 
 class Chats(Resource):
@@ -145,36 +158,34 @@ class ChatMessages(Resource):
             'messages': message_list
         }), 200)
     
+    def post(self, chat_id):
+        data = request.get_json()
+        user_id = data.get('user_id')
+        content = data.get('content')
+
+        if not user_id or not content:
+            return {'message': 'user_id and content are required'}, 400
+        
+        new_message = Message(
+            id=uuid.uuid4(),
+            chat_id=UUID(chat_id),
+            user_id=UUID(user_id),
+            type="text",
+            content=content,
+            sent_at=datetime.utcnow()
+        )
+        
+        try:
+            db.session.add(new_message)
+            db.session.commit()
+            return {'message': 'Message sent successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            return {'message': f'Error sending message: {str(e)}'}, 500
+    
 
 # Modified to receive chat id as a parameter
 api.add_resource(ChatMessages, '/messages/<string:chat_id>')
-
-obj={
-    "name": "Azhar",
-    "bestie": "Zaki",
-    "content": "Hello, how are you?"
-}
-all_my_otps=[]
-otp=None
-
-# I've gotten a request from my client lets say the request is the creating an account
-# Now 
-
-# get,post,put,patch,delete
-class Test(Resource):
-    def get(self):
-        return jsonify(obj)
-    def post(self):
-        # There is this object called request
-        data=request.get_json()
-        otp=data.get('otp')
-        otp=otp
-        return jsonify(obj)
-
-
-
-
-api.add_resource(Test,'/test')
 
 
 class Logout(Resource):
@@ -189,7 +200,7 @@ api.add_resource(Logout, '/logout')
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    socketio.run(app,port=5000, debug=True)
 
 
 
