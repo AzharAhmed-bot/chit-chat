@@ -11,6 +11,8 @@ flask-jwt-extended = "*"
 dotenv = "*"
 flask-session = "*"
 mcp-server-time = "*"
+flask-socketio = "*"
+flask-cors = "*"
 
 [dev-packages]
 
