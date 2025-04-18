@@ -1,15 +1,14 @@
 from datetime import datetime
 from flask import Flask, make_response, jsonify, request, session
-from flask_socketio import SocketIO,join_room,emit
+from flask_socketio import SocketIO, join_room, emit
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from flask_session import Session
-from flask_jwt_extended import JWTManager,create_access_token
-from model import db, User,Chat,ChatMembers,Message,Group
+from flask_jwt_extended import JWTManager, create_access_token
+from model import db, User, Chat, ChatMembers, Message, Group
+from flask_bcrypt import Bcrypt
 from config import AppConfig
 from uuid import UUID
-import uuid
-
 import uuid
 
 # Flask app setup
@@ -17,26 +16,31 @@ app = Flask(__name__)
 app.config.from_object(AppConfig)
 db.init_app(app)
 api = Api(app)
-jwt=JWTManager(app)
-sess=Session(app)
-socketio=SocketIO(app,cors_allowed_origins="*")
-CORS(app, supports_credentials=True)
+jwt = JWTManager(app)
+Session(app)
+bcrypt = Bcrypt(app)
+socketio = SocketIO(
+    app,
+    cors_allowed_origins=["http://localhost:5173"],
+    manage_session=False,
+    async_handlers=True,
+    logger=True, 
+    engineio_logger=True
+)
 
-
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
 # with app.app_context():
-#     db.drop_all()
 #     db.create_all()
-
-
-
-
-# Server side sessioning 
-simulated_otp_store = {}
 
 @app.route('/')
 def index():
     return make_response(jsonify({'message': 'Hello World!'}), 200)
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+
 
 class NewUser(Resource):
     def post(self):
@@ -50,12 +54,13 @@ class NewUser(Resource):
 
 api.add_resource(NewUser, '/users')
 
+simulated_otp_store = {}
+
 class Login(Resource):
     def post(self):
         data = request.get_json()
         mode = data.get('mode')
         phone_number = data.get('phone_number')
-
         if not mode or not phone_number:
             return {'message': 'Mode and phone number are required'}, 400
 
@@ -79,7 +84,7 @@ class Login(Resource):
                 return {'message': 'OTP is required for verification'}, 400
             expected_otp = simulated_otp_store.get(phone_number)
             if expected_otp and str(expected_otp) == str(otp):
-                token=create_access_token(identity=phone_number)
+                token = create_access_token(identity=phone_number)
                 session['user'] = {
                     'user_id': user.id,
                     'token': token
@@ -98,22 +103,16 @@ class Login(Resource):
 api.add_resource(Login, '/login')
 
 
-
-
-class Chats(Resource):
+class UserChats(Resource):
     def get(self):
         user = session.get('user')
         if not user:
             return {'message': 'Unauthorized'}, 401
-
-        user_id = uuid.UUID(user['user_id'])
-        chat_memberships = ChatMembers.query.filter_by(user_id=user_id).all()
-        print(chat_memberships)
+        user_id = UUID(user['user_id'])
+        chat_membership = ChatMembers.query.filter_by(user_id=user_id).all()
         result = []
-
-        for membership in chat_memberships:
-            chat = Chat.query.get(membership.chat_id)
-
+        for membership in chat_membership:
+            chat = Chat.query.filter_by(id=membership.chat_id).first()
             if chat.is_group:
                 group = Group.query.filter_by(id=chat.id).first()
                 chat_name = group.name if group else "Unnamed Group"
@@ -133,9 +132,9 @@ class Chats(Resource):
             })
 
         return {'chats': result}, 200
-        
 
-api.add_resource(Chats, '/chats')
+api.add_resource(UserChats, '/chats')
+
 
 class ChatMessages(Resource):
     def get(self, chat_id):
@@ -182,43 +181,50 @@ class ChatMessages(Resource):
         except Exception as e:
             db.session.rollback()
             return {'message': f'Error sending message: {str(e)}'}, 500
-    
 
-# Modified to receive chat id as a parameter
 api.add_resource(ChatMessages, '/messages/<string:chat_id>')
 
+class Test(Resource):
+    def get(self):
+        user = session.get('user')
+        return {'user': dict(user)}
+
+api.add_resource(Test, '/test')
 
 class Logout(Resource):
     def post(self):
-        session.pop('user', None)  # Removes session
-        return {'message': 'Logout success'}, 200
+        try:
+            session.clear()
+            return {'message': 'Logout success'}, 200
+        except Exception as e:
+            return {'message': f'Logout failed: {str(e)}'}, 500
     
 api.add_resource(Logout, '/logout')
 
 
 
+@socketio.on('check_auth')
+def check_auth():
+    try:
+        user = session.get('user')
+        if user:
+            emit("auth_status", {
+                "isAuthenticated": True,
+                "user": user['user_id']
+            })
+        else:
+            emit("auth_status", {
+                "isAuthenticated": False,
+                "user": None
+            })
+    except Exception as e:
+        print(f"Session error: {str(e)}")
+        emit("auth_status", {
+            "isAuthenticated": False,
+            "user": None
+        })
+
 
 
 if __name__ == "__main__":
-    socketio.run(app,port=5000, debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    socketio.run(app, port=5000, debug=True)
