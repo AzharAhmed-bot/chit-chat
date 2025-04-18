@@ -22,7 +22,7 @@ class User(db.Model):
 
     id=db.Column(UUID(as_uuid=True),primary_key=True,default=lambda: uuid.uuid4())
     name=db.Column(db.String(100), nullable=False)
-    phone_number=db.Column(db.String(100), nullable=False, unique=True)
+    phone_number=db.Column(db.String(20), nullable=False, unique=True)
     created_at =db.Column(db.DateTime, default=datetime.utcnow)
     updated_at =db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
