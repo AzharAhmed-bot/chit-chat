@@ -8,7 +8,7 @@ const socket = io('http://localhost:5000', {  // Fix typo in variable name
     autoConnect: false  // Prevent immediate connection
 });
 
-function Login() {
+function LoginScreen() {
     const navigate=useNavigate()
     const getOtpStatus=()=>{
         const otpStatus=localStorage.getItem('otp_requested')
@@ -83,4 +83,4 @@ function Login() {
   )
 }
 
-export default Login
+export default LoginScreen
