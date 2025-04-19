@@ -1,12 +1,14 @@
 
-import Login from './login'
-import ChatPage from './chatPage'
-import Protected from './Protected'
+import LoginPage from 'auth/LoginPage'
+import ChatPage from 'chat/ChatPage'
+import Protected from './components/auth/Protected'
+import Home from './pages/home/Home'
 import { Routes, Route } from 'react-router-dom'
 
 function App() {
   const routes=[
-   {path:"/login",element:<Login/>},
+   {path:"/", element:<Home/>},
+   {path:"/login",element:<LoginPage/>},
    {path:"/chat",element:<Protected><ChatPage/></Protected>},
   ]
   return (
