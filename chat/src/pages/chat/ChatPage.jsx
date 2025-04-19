@@ -1,8 +1,8 @@
 import React from 'react'
-import UseAuth from '../components/auth/UseAuth'
+import UseAuth from 'components/auth/UseAuth'
 
-function ChatList() {
-    const {user,chats}=UseAuth()
+function ChatPage() {
+    const {user}=UseAuth()
     const handleLogOut= async()=>{
         const response=await fetch("http://localhost:5000/logout",{
             method:"POST",
@@ -23,4 +23,4 @@ function ChatList() {
   )
 }
 
-export default ChatScreen
+export default ChatPage
