@@ -9,10 +9,12 @@ export default defineConfig({
   plugins: [react()],
   resolve:{
     alias:{
+      "assets":path.resolve(__dirname,'./src/assets'),
       '@':path.resolve(__dirname,'./src'),
       'auth':path.resolve(__dirname,'./src/pages/auth'),
       "chat":path.resolve(__dirname,"./src/pages/chat"),
       'components':path.resolve(__dirname,'./src/components'),
+      'common':path.resolve(__dirname,'./src/pages/common'),
       'pages': path.resolve(__dirname,'./src/pages'),
       'services':path.resolve(__dirname,'./src/services')
     }

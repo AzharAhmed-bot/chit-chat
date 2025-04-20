@@ -1,4 +1,5 @@
-
+// Import App.css
+import './App.css';
 import LoginPage from 'auth/LoginPage'
 import ChatPage from 'chat/ChatPage'
 import Protected from './components/auth/Protected'
