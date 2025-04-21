@@ -10,7 +10,6 @@ function UseAuth() {
     socket.emit("check_auth")
 
     socket.on("auth_status",(data)=>{
-    console.log(data)
     setIsAuthenticated(data.isAuthenticated)
     setUser(data.user)
     setIsLoading(false)

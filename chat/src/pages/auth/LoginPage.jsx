@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UseAuth from 'components/auth/UseAuth';
 import Navigation from 'common/Navigation';
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,9 @@ import { handleSendOTP, handleVerifyOTP } from 'services/api/login';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const {isAuthenticated}=UseAuth()
 
+  
   const getOtpStatus = () => {
     return localStorage.getItem('otp_requested') === 'true';
   };
@@ -29,7 +32,13 @@ function LoginPage() {
 
   useEffect(() => {
     setActiveTab(requestOtp ? 'otp' : 'phone');
-  }, [requestOtp]);
+    if (error) {
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
+  }, [requestOtp,error]);
+
 
   const requestOtpHandler = async () => {
     if (!phoneNumber){
@@ -63,6 +72,16 @@ function LoginPage() {
     <>
     <Navigation/>
     <div className='flex items-center justify-center h-screen'>
+    {isAuthenticated ? (
+      <Card className="w-[400px] h-[400px] flex justify-center items-center ">
+      <div className="alert-card flex w-full justify-center items-center  p-6 mb-6 bg-green-50 border border-green-200 rounded-lg">
+      <div class="flex justify-center align-middle items-center">
+        <i class="fas fa-check-circle text-green-500 text-2xl mr-3"></i>
+        <p class="text-green-700 font-semibold">You are already logged in!</p>
+      </div>
+    </div>
+    </Card>
+    ) : (
       <Tabs value={activeTab} className="w-[400px]">
         {/* Phone Tab */}
         <TabsContent value="phone">
@@ -122,6 +141,8 @@ function LoginPage() {
           </Card>
         </TabsContent>
       </Tabs>
+    )}
+      
     </div>
     </>
   );

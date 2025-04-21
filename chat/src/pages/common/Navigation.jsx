@@ -2,13 +2,16 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { navigationItems } from "@/constants";
 import { Link } from "react-router-dom";
+import UseAuth from "../../components/auth/UseAuth";
 import { useNavigate } from "react-router-dom";
+import { handleLogOut } from "../../services/api/login";
 import useTheme from "../../context/ThemeContext";
 import { Sun,Moon } from "lucide-react";
 
 
 function Navigation() {
   const navigate = useNavigate();
+  const {isAuthenticated}=UseAuth()
   const {theme,toggleTheme}=useTheme()
 
   return (
@@ -35,10 +38,18 @@ function Navigation() {
 
         {/* CTA Button */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="lg" className="hidden md:inline-flex" onClick={()=>navigate('/login')}>
-            
-            Sign in
-          </Button>
+         {isAuthenticated ? (
+            <Button variant="outline" size ="lg" className="hidden md:inline-flex" onClick={()=>handleLogOut(navigate)}>
+                Sign Out
+            </Button>
+         ) : (
+            <Button variant="outline" size="lg" className="hidden md:inline-flex" onClick={()=>navigate('/login')}>
+             Sign in
+            </Button>
+         )
+         
+        }
+          
           {/* Theme Changer Button */}
           <Button variant="outline" className="rounded-full p-2" onClick={toggleTheme}>
             {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}

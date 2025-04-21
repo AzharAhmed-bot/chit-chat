@@ -63,7 +63,7 @@ const handleVerifyOTP=async(phoneNumber,otp,navigate)=>{
     })
     return  {success:true,message:data.message}
   }
-  else{
+  else if(response.status===404){
     return {success:false,message:data.message}
   }
   }
@@ -72,4 +72,28 @@ const handleVerifyOTP=async(phoneNumber,otp,navigate)=>{
   }
 }
 
-export {handleSendOTP,handleVerifyOTP}
+
+const handleLogOut=async(navigate)=>{
+  try{
+    const response=await fetch("http://localhost:5000/logout",{
+        method:"POST",
+        credentials:"include",
+        headers:{
+          'Content-Type':'application/json'
+        }
+    })
+    const data=await response.json()
+    if(response.status===200){
+      navigate('/')
+      return data.message
+    }
+    else{
+      return {success:false,message:data.message}
+    }
+  }
+  catch(error){
+    return {success:false,message:`Something went wrong. Try again later ${error}`}
+  }
+}
+
+export {handleSendOTP,handleVerifyOTP,handleLogOut}
