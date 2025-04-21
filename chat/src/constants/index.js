@@ -33,7 +33,7 @@ export const USER_CHATS = [
     },
     {
       name: "Chats",
-      path: "/chats",
+      path: "/chat",
     },
     {
       name: "Support",

@@ -2,8 +2,13 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { navigationItems } from "@/constants";
 import { Link } from "react-router-dom";
+import useTheme from "../../context/ThemeContext";
+import { Sun,Moon } from "lucide-react";
+
 
 function Navigation() {
+  const {theme,toggleTheme}=useTheme()
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -30,6 +35,10 @@ function Navigation() {
         <div className="flex items-center gap-2">
           <Button variant="outline" size="lg" className="hidden md:inline-flex">
             Sign in
+          </Button>
+          {/* Theme Changer Button */}
+          <Button variant="outline" className="rounded-full p-2" onClick={toggleTheme}>
+            {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
           </Button>
         </div>
       </div>
