@@ -68,7 +68,7 @@ const HomePage = () => {
                 <Button
                   className="overflow-hidden bg-primary text-primary-foreground px-8 py-6 text-lg font-medium"
                 >
-                  <Link to="/generate-program" className="flex items-center font-mono">
+                  <Link to="/chat" className="flex items-center font-mono">
                     Start Chatting
                     <ArrowRightIcon className="ml-2 size-5" />
                   </Link>

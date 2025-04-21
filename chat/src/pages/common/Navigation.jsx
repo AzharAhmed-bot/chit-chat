@@ -2,11 +2,13 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { navigationItems } from "@/constants";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useTheme from "../../context/ThemeContext";
 import { Sun,Moon } from "lucide-react";
 
 
 function Navigation() {
+  const navigate = useNavigate();
   const {theme,toggleTheme}=useTheme()
 
   return (
@@ -33,7 +35,8 @@ function Navigation() {
 
         {/* CTA Button */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="lg" className="hidden md:inline-flex">
+          <Button variant="outline" size="lg" className="hidden md:inline-flex" onClick={()=>navigate('/login')}>
+            
             Sign in
           </Button>
           {/* Theme Changer Button */}
