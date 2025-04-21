@@ -121,6 +121,7 @@ const HomePage = () => {
     <div className="flex justify-between items-center flex-col lg:flex-row md:flex-row gap-6 px-24 py-10">
       {/* <FeatureHighlightCard/> */}
       {/* <About/> */}
+      
     </div>
     </div>
   );

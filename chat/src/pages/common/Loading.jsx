@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react'
-import { Progress } from '@radix-ui/react-progress'
+import { Progress } from '@/components/ui/progress'
 import UseAuth from 'components/auth/UseAuth'
 
 function Loading() {

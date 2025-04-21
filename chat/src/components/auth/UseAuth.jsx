@@ -12,7 +12,10 @@ function UseAuth() {
     socket.on("auth_status",(data)=>{
     setIsAuthenticated(data.isAuthenticated)
     setUser(data.user)
-    setIsLoading(false)
+    
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
     })
   
   },[])
