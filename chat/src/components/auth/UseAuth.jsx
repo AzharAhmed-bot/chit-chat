@@ -6,17 +6,23 @@ function UseAuth() {
     const [isLoading,setIsLoading]=useState(true)
 
   useEffect(()=>{
-    
+    let timeout;
     socket.emit("check_auth")
 
     socket.on("auth_status",(data)=>{
     setIsAuthenticated(data.isAuthenticated)
     setUser(data.user)
     
-    setTimeout(() => {
+    timeout=setTimeout(() => {
       setIsLoading(false);
     }, 3000);
     })
+    
+   
+    return () => {
+      clearTimeout(timeout);
+      socket.off("auth_status")
+    };
   
   },[])
   return {isAuthenticated,user,isLoading}
