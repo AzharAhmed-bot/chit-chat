@@ -1,4 +1,6 @@
 
+import {useNavigate} from "react-router-dom";
+import { handleLogOut } from "services/api/login";
 import { MessageCircle, Home, Bell, Settings, LogOut } from "lucide-react"
 import {
   Sidebar,
@@ -8,7 +10,10 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar"
+
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import ConfirmDialog from "./ConfirmADialog"
+
 
 export default function AppSidebar() {
   const navItems = [
@@ -18,7 +23,13 @@ export default function AppSidebar() {
     { icon: Settings, label: "Settings", href: "#" },
   ]
 
+  const navigate=useNavigate()
+  
+
+
+
   return (
+    <>
     <Sidebar collapsible="none &" variant="floating" className="h-screen">
       <SidebarContent className="flex flex-col justify-between items-center h-full py-6 bg-[#4C585B] ">
         {/* Top: Avatar + Main Nav */}
@@ -61,16 +72,26 @@ export default function AppSidebar() {
         <SidebarFooter className="flex justify-center">
           <Tooltip>
             <TooltipTrigger asChild>
-              <SidebarMenuButton asChild>
-                <button className="p-2 hover:bg-gray-600 rounded-lg">
-                  <LogOut size={28} />
-                </button>
-              </SidebarMenuButton>
+              <ConfirmDialog
+                trigger={
+                  <SidebarMenuButton asChild>
+                    <button className="p-2 hover:bg-gray-600 rounded-lg">
+                      <LogOut size={28} className="text-[#F4EDD3]" />
+                    </button>
+                  </SidebarMenuButton>
+                }
+                title="Confirm Logout"
+                description="Are you sure you want to log out?"
+                confirmText="Log Out"
+                cancelText="Cancel"
+                onConfirm={()=>handleLogOut(navigate)}
+              />
             </TooltipTrigger>
             <TooltipContent side="right">Sign out</TooltipContent>
           </Tooltip>
         </SidebarFooter>
       </SidebarContent>
     </Sidebar>
+    </>
   )
 }
