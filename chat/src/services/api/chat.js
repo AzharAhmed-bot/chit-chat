@@ -1,25 +1,38 @@
 
-const getChats=async ()=>{
-    try{
-        const response=await fetch('http://localhost:5000/chats',{
-            method:'GET',
-            credentials:"include",
-            headers:{
-              'Content-Type':'application/json'
-            }
-        })
-        const data=await response.json()
-        if(response.status===200){
-            console.log(data)
-          return {success:true,data:data}
+export const getChats = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/chats', {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      return {
+        success: res.ok,
+        data: data.chats || []
+      };
+    } catch (e) {
+      return { success: false, data: [], error: e.toString() };
+    }
+  };
+export const getLatestMessagesBulk = async (chatIds) => {
+    try {
+      const response = await fetch(
+        'http://localhost:5000/messages/latest',
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatIds })
         }
-        else{
-          return {success:false,data:data}
-        }
+      )
+      const data = await response.json()
+      return {
+        success: response.ok,
+        data: data.latest   // { chatId: { content, ... }, … }
       }
-      catch(e){
-        return {success:false,data:`Something went wrong. Try again later ${e}`}
-      }
+    } catch (e) {
+      return { success: false, data: {} }
+    }
 }
 
-export default getChats

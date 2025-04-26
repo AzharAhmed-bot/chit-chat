@@ -19,8 +19,8 @@ export default function AppSidebar() {
   ]
 
   return (
-    <Sidebar collapsible="none" variant="inset" className="h-screen">
-      <SidebarContent className="flex flex-col justify-between items-center h-full py-6 bg-gray-700 text-gray-100">
+    <Sidebar collapsible="none &" variant="floating" className="h-screen">
+      <SidebarContent className="flex flex-col justify-between items-center h-full py-6 bg-[#4C585B] ">
         {/* Top: Avatar + Main Nav */}
         <div className="flex flex-col items-start space-y-10">
           {/* Avatar */}
@@ -34,17 +34,17 @@ export default function AppSidebar() {
           </div>
 
           {/* Navigation Buttons */}
-          <SidebarMenu className="flex flex-col items-start space-y-6">
+          <SidebarMenu className="flex flex-col items-start space-y-6 ">
             {navItems.map(({ icon: Icon, label, href }) => (
               <SidebarMenuItem key={label}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <SidebarMenuButton asChild>
-                      <a
+                      <a 
                         href={href}
                         className="p-2 hover:bg-gray-600 rounded-lg font-bold text-2xl"
                       >
-                        <Icon/> 
+                        <Icon className="text-[#F4EDD3] "/> 
                       </a>
                     </SidebarMenuButton>
                   </TooltipTrigger>
