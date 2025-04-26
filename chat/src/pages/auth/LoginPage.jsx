@@ -75,9 +75,9 @@ function LoginPage() {
     {isAuthenticated ? (
       <Card className="w-[400px] h-[400px] flex justify-center items-center ">
       <div className="alert-card flex w-full justify-center items-center  p-6 mb-6 bg-green-50 border border-green-200 rounded-lg">
-      <div class="flex justify-center align-middle items-center">
-        <i class="fas fa-check-circle text-green-500 text-2xl mr-3"></i>
-        <p class="text-green-700 font-semibold">You are already logged in!</p>
+      <div className="flex justify-center align-middle items-center">
+        <i className="fas fa-check-circle text-green-500 text-2xl mr-3"></i>
+        <p className="text-green-700 font-semibold">You are already logged in!</p>
       </div>
     </div>
     </Card>

@@ -1,24 +1,29 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import UseAuth from 'components/auth/UseAuth'
+import App from '../../App'
+import getChats from '../../services/api/chat'
+
 
 function ChatPage() {
     const {user}=UseAuth()
-    const handleLogOut= async()=>{
-        const response=await fetch("http://localhost:5000/logout",{
-            method:"POST",
-            credentials:"include"
+    const [chats,setChats]=useState([])
+
+    useEffect(()=>{
+        getChats().then(res=>{
+            if(res.success && res.data){
+              setChats(res.data)
+            }
         })
-        const data=await response.json()
-        console.log(data)
-    }
-    console.log(user)
+        
+    },[user])
+
+    console.log(chats)
+
   return (
     <>
     <div>Welcome {user}</div>
     <div>
-        <button onClick={handleLogOut}>Logout</button>
     </div>
-
     </>
   )
 }
