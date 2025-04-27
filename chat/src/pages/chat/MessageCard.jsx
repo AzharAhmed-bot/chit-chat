@@ -1,15 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import {AlertDialog,AlertDialogContent,AlertDialogHeader,AlertDialogTitle,AlertDialogDescription,AlertDialogFooter,AlertDialogCancel,AlertDialogAction} from '@/components/ui/alert-dialog'
+import ConfirmDialog from '../common/ConfirmADialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { EllipsisVertical, Send } from 'lucide-react';
-import { getChatMessages } from 'services/api/chat';
+import { getChatMessages, postNewMessage } from 'services/api/chat';
 import DefaultMessageCard from './DefaultMessageCard';
 
 export default function MessageCard({ user, chatId, chatInfo }) {
   const [messages, setMessages] = useState([]);
-  const [newMsg, setNewMsg] = useState('');
+  const [errorMessage,setErrorMessage]=useState('')
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [newMsg, setNewMsg] = useState({
+    user_id: user,
+    content: "",
+    sent_at: null,
+    seen_at:null,
+    delete_at:null
+  });
   const scrollRef = useRef(null);
+
 
   useEffect(() => {
     if (!chatId) return;
@@ -25,11 +36,60 @@ export default function MessageCard({ user, chatId, chatInfo }) {
     }
   }, [messages]);
 
+  async function postMessage() {
+    const text = newMsg.content
+    if (!text) return
+
+    const optimisticMsg = {
+      user_id: user,
+      ...newMsg,
+      content: text,
+      sent_at: new Date().toISOString()
+    }
+
+    setMessages(prev => [...prev, optimisticMsg])
+    setNewMsg({
+      user_id: user,
+      content: "",
+      sent_at: null,
+      seen_at: null,
+      delete_at: null
+    })
+    try{
+        const res=await postNewMessage(chatId,text)
+        if (!res.success) throw new Error(res.error || 'Server error')    
+    }
+    catch{
+        setMessages(prev => prev.slice(0, -1))
+        setErrorOpen(true)
+        setErrorMessage('Something went wrong. Try again later')
+
+    }
+
+  }
+
   if (!chatInfo.hasSelectedChat) {
     return <DefaultMessageCard />;
   }
 
   return (
+    <>
+    <AlertDialog
+        open={errorOpen}
+        onOpenChange={setErrorOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send Failed</AlertDialogTitle>
+            <AlertDialogDescription>
+              {errorMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>OK</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     <div className="flex flex-col h-full overflow-hidden ">
       {/* header */}
       <div className="flex items-center justify-between p-4  border-b">
@@ -95,20 +155,21 @@ export default function MessageCard({ user, chatId, chatInfo }) {
       <div className="flex-shrink-0 flex items-center p-3  border-t">
         <Input
           placeholder="Type a message..."
-          value={newMsg}
-          onChange={e => setNewMsg(e.target.value)}
+          value={newMsg.content}
+          onChange={e => setNewMsg(prev => ({ ...prev, content: e.target.value }))}
           className="flex-1"
         />
         <Button
           variant="ghost"
           className="ml-2 p-2"
           onClick={() => {
-            /* send logic */
+            postMessage()
           }}
         >
           <Send className="h-5 w-5  " />
         </Button>
       </div>
     </div>
+    </>
   );
 }

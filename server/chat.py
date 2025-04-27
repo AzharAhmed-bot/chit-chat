@@ -198,7 +198,6 @@ class ChatMessages(Resource):
             return {'message': 'user_id and content required'}, 400
 
         new_msg = Message(
-            id=uuid.uuid4(),
             chat_id=UUID(chat_id),
             user_id=UUID(user_id),
             type="text",
