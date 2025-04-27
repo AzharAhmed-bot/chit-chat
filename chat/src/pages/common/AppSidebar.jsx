@@ -1,4 +1,4 @@
-
+import chat from "../../assets/images/chat.png"
 import {useNavigate} from "react-router-dom";
 import { handleLogOut } from "services/api/login";
 import { MessageCircle, Home, Bell, Settings, LogOut } from "lucide-react"
@@ -17,7 +17,7 @@ import ConfirmDialog from "./ConfirmADialog"
 
 export default function AppSidebar() {
   const navItems = [
-    { icon: Home, label: "Home", href: "#" },
+    { icon: Home, label: "Home", href: "/" },
     { icon: MessageCircle, label: "Chats", href: "#" },
     { icon: Bell, label: "Notifications", href: "#" },
     { icon: Settings, label: "Settings", href: "#" },
@@ -31,13 +31,13 @@ export default function AppSidebar() {
   return (
     <>
     <Sidebar collapsible="none &" variant="floating" className="h-screen">
-      <SidebarContent className="flex flex-col justify-between items-center h-full py-6 bg-[#4C585B] ">
+      <SidebarContent className="flex flex-col justify-between items-center h-full py-6 w-full  ">
         {/* Top: Avatar + Main Nav */}
         <div className="flex flex-col items-start space-y-10">
           {/* Avatar */}
           <div className="h-12 w-12 rounded-full overflow-hidden">
             <img
-              src="/avatar.jpg"
+              src={chat}
               alt="User avatar"
               width={48}
               height={48}
@@ -55,7 +55,7 @@ export default function AppSidebar() {
                         href={href}
                         className="p-2 hover:bg-gray-600 rounded-lg font-bold text-2xl"
                       >
-                        <Icon className="text-[#F4EDD3] "/> 
+                        <Icon className=""/> 
                       </a>
                     </SidebarMenuButton>
                   </TooltipTrigger>
@@ -76,7 +76,7 @@ export default function AppSidebar() {
                 trigger={
                   <SidebarMenuButton asChild>
                     <button className="p-2 hover:bg-gray-600 rounded-lg">
-                      <LogOut size={28} className="text-[#F4EDD3]" />
+                      <LogOut size={28} className="" />
                     </button>
                   </SidebarMenuButton>
                 }

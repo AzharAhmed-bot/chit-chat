@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Flask, make_response, jsonify, request, session
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit,join_room, leave_room
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from flask_session import Session
@@ -10,7 +10,7 @@ from uuid import UUID
 import uuid
 
 from config import AppConfig
-from model import db, User, Chat, ChatMembers, Message, Group,MessageStatus
+from model import db, User, Chat, ChatMembers, Message, Group
 
 app = Flask(__name__)
 app.config.from_object(AppConfig)
@@ -30,6 +30,9 @@ socketio = SocketIO(
     engineio_logger=True
 )
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+
+# with app.app_context():
+#     db.create_all()
 
 @app.route('/')
 def index():
@@ -177,7 +180,9 @@ class ChatMessages(Resource):
         payload = [{
             'user_id': str(m.user_id),
             'content': m.content,
-            'sent_at': m.sent_at.isoformat()
+            'sent_at': m.sent_at.isoformat(),
+            "seen_at":m.seen_at.isoformat() if m.seen_at else None,
+            "deleted_at": m.deleted_at.isoformat() if m.deleted_at else None
         } for m in msgs]
 
         return make_response(jsonify({
@@ -187,13 +192,12 @@ class ChatMessages(Resource):
 
     def post(self, chat_id):
         data = request.get_json()
-        user_id = data.get('user_id')
+        user_id = session.get('user').get('user_id')
         content = data.get('content')
         if not user_id or not content:
             return {'message': 'user_id and content required'}, 400
 
         new_msg = Message(
-            id=uuid.uuid4(),
             chat_id=UUID(chat_id),
             user_id=UUID(user_id),
             type="text",
@@ -203,6 +207,13 @@ class ChatMessages(Resource):
         db.session.add(new_msg)
         try:
             db.session.commit()
+            payload={
+                "chat_id":chat_id,
+                "user_id":user_id,
+                "content":content,
+                "sent_at":new_msg.sent_at.isoformat()
+            }
+            socketio.emit('new_message', payload, room=chat_id)
             return {'message': 'Message sent successfully'}, 200
         except Exception as e:
             db.session.rollback()
@@ -224,6 +235,20 @@ def check_auth():
         'isAuthenticated': bool(user),
         'user': user['user_id'] if user else None
     })
+
+@socketio.on('join_room')
+def handle_join_room(data):
+    chat_id = data.get('chat_id')
+    if chat_id:
+        join_room(chat_id)
+        print(f"User joined room: {chat_id}")
+
+@socketio.on('leave_room')
+def handle_leave_room(data):
+    chat_id = data.get('chat_id')
+    if chat_id:
+        leave_room(chat_id)
+        print(f"User left room: {chat_id}")
 
 if __name__ == "__main__":
     socketio.run(app, port=5000, debug=True)

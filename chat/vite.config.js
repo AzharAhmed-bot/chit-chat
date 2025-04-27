@@ -12,6 +12,7 @@ export default defineConfig({
       "assets":path.resolve(__dirname,'./src/assets'),
       '@':path.resolve(__dirname,'./src'),
       'auth':path.resolve(__dirname,'./src/pages/auth'),
+      'hooks':path.resolve(__dirname, './src/hooks'),
       "chat":path.resolve(__dirname,"./src/pages/chat"),
       'components':path.resolve(__dirname,'./src/components'),
       'common':path.resolve(__dirname,'./src/pages/common'),

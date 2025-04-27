@@ -8,7 +8,7 @@ export default function Layout({ children }) {
     return (
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
-        <main>
+        <main className="w-full">
           <SidebarTrigger />
           {children}
         </main>
