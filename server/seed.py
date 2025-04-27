@@ -1,5 +1,5 @@
 from chat import db, app
-from model import User, Chat, Message, MessageStatus, ChatMembers, Group
+from model import User, Chat, Message, ChatMembers, Group
 import uuid
 from datetime import datetime
 
@@ -47,15 +47,11 @@ def seed():
     ])
     db.session.commit()
 
-    message_1=Message(id=uuid.uuid4(),user_id=user_1.id,chat_id=private_chat.id,type="text",content='Hey girl',sent_at=datetime.utcnow())
+    message_1=Message(id=uuid.uuid4(),user_id=user_1.id,chat_id=private_chat.id,type="text",content='Hey girl',sent_at=datetime.utcnow(),seen_at=datetime.utcnow())
     message_2=Message(id=uuid.uuid4(),user_id=user_2.id,chat_id=private_chat.id,type="text",content='girllly',sent_at=datetime.utcnow())
     db.session.add_all([message_1,message_2])
     db.session.commit()
      
-    message_status1=MessageStatus(user_id=user_1.id,message_id=message_1.id,delivered_at=datetime.utcnow(),seen_at=datetime.utcnow() )
-    message_status2=MessageStatus(user_id=user_2.id,message_id=message_2.id,delivered_at=datetime.utcnow(),seen_at=datetime.utcnow() )
-    db.session.add_all([message_status1,message_status2])
-
     #Bulk adding
     db.session.add_all([user_1, user_2, user_3])
     db.session.commit()

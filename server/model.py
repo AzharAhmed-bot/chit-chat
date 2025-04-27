@@ -70,14 +70,9 @@ class Message(db.Model):
     chat_id=db.Column(UUID(as_uuid=True),db.ForeignKey('chats.id'),nullable=False)
     type=db.Column(db.String(20))
     content=db.Column(db.Text)
-    deleted_at=db.Column(db.DateTime)
-    
-class MessageStatus(db.Model):
-    __tablename__='message_status'
-    user_id=db.Column(UUID(as_uuid=True),db.ForeignKey('users.id'),primary_key=True,nullable=False)
-    message_id=db.Column(UUID(as_uuid=True),db.ForeignKey('messages.id'),primary_key=True,nullable=False)
-    delivered_at=db.Column(db.DateTime)
+    sent_at=db.Column(db.DateTime,default=db.func.current_timestamp())
     seen_at=db.Column(db.DateTime)
+    deleted_at=db.Column(db.DateTime)
     
 
 

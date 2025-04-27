@@ -10,7 +10,7 @@ from uuid import UUID
 import uuid
 
 from config import AppConfig
-from model import db, User, Chat, ChatMembers, Message, Group,MessageStatus
+from model import db, User, Chat, ChatMembers, Message, Group
 
 app = Flask(__name__)
 app.config.from_object(AppConfig)
@@ -30,6 +30,9 @@ socketio = SocketIO(
     engineio_logger=True
 )
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+
+# with app.app_context():
+#     db.create_all()
 
 @app.route('/')
 def index():
@@ -177,7 +180,9 @@ class ChatMessages(Resource):
         payload = [{
             'user_id': str(m.user_id),
             'content': m.content,
-            'sent_at': m.sent_at.isoformat()
+            'sent_at': m.sent_at.isoformat(),
+            "seen_at":m.seen_at.isoformat() if m.seen_at else None,
+            "deleted_at": m.deleted_at.isoformat() if m.deleted_at else None
         } for m in msgs]
 
         return make_response(jsonify({
@@ -187,7 +192,7 @@ class ChatMessages(Resource):
 
     def post(self, chat_id):
         data = request.get_json()
-        user_id = data.get('user_id')
+        user_id = session.get('user').get('user_id')
         content = data.get('content')
         if not user_id or not content:
             return {'message': 'user_id and content required'}, 400
