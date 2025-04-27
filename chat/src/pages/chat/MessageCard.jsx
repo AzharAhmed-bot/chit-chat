@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import socket from '../../hooks/useSocket';
 import {AlertDialog,AlertDialogContent,AlertDialogHeader,AlertDialogTitle,AlertDialogDescription,AlertDialogFooter,AlertDialogCancel,AlertDialogAction} from '@/components/ui/alert-dialog'
 import ConfirmDialog from '../common/ConfirmADialog';
 import { Input } from '@/components/ui/input';
@@ -24,10 +25,17 @@ export default function MessageCard({ user, chatId, chatInfo }) {
 
   useEffect(() => {
     if (!chatId) return;
-    (async () => {
+    socket.emit('join_room',{chat_id:chatId})
+
+    const loadMessages=async () => {
       const res = await getChatMessages(chatId);
       if (res.success) setMessages(res.data);
-    })();
+    }
+    loadMessages()
+
+    return()=>{
+      socket.emit('leave_room',{chat_id:chatId})
+    }
   }, [chatId]);
 
   useEffect(() => {
@@ -36,13 +44,25 @@ export default function MessageCard({ user, chatId, chatInfo }) {
     }
   }, [messages]);
 
+  useEffect(()=>{
+    const handleNewMessage = (msg) => {
+        if (msg.chat_id === chatId && msg.user_id !== user) {
+            setMessages(prev => [...prev, msg])
+            }
+    }
+    socket.on('new_message',handleNewMessage)
+    return ()=>{
+        socket.off('new_message',handleNewMessage)
+    }
+  },[chatId,user])
+
+
   async function postMessage() {
     const text = newMsg.content
     if (!text) return
 
     const optimisticMsg = {
       user_id: user,
-      ...newMsg,
       content: text,
       sent_at: new Date().toISOString()
     }
@@ -114,7 +134,7 @@ export default function MessageCard({ user, chatId, chatInfo }) {
       {/* only this scrolls */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3"
+        className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar"
       >
         {messages.map((message, idx) => {
           const isMine = message.user_id === user;

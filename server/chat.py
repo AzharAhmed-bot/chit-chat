@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Flask, make_response, jsonify, request, session
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit,join_room, leave_room
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from flask_session import Session
@@ -207,6 +207,13 @@ class ChatMessages(Resource):
         db.session.add(new_msg)
         try:
             db.session.commit()
+            payload={
+                "chat_id":chat_id,
+                "user_id":user_id,
+                "content":content,
+                "sent_at":new_msg.sent_at.isoformat()
+            }
+            socketio.emit('new_message', payload, room=chat_id)
             return {'message': 'Message sent successfully'}, 200
         except Exception as e:
             db.session.rollback()
@@ -228,6 +235,20 @@ def check_auth():
         'isAuthenticated': bool(user),
         'user': user['user_id'] if user else None
     })
+
+@socketio.on('join_room')
+def handle_join_room(data):
+    chat_id = data.get('chat_id')
+    if chat_id:
+        join_room(chat_id)
+        print(f"User joined room: {chat_id}")
+
+@socketio.on('leave_room')
+def handle_leave_room(data):
+    chat_id = data.get('chat_id')
+    if chat_id:
+        leave_room(chat_id)
+        print(f"User left room: {chat_id}")
 
 if __name__ == "__main__":
     socketio.run(app, port=5000, debug=True)
