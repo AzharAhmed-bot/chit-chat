@@ -9,9 +9,9 @@ from datetime import datetime
 
 def seed():
 
-    user_1=User(id=uuid.uuid4(), name="Alice", phone_number="+254773470576")
-    user_2=User(id=uuid.uuid4(), name="Bob", phone_number="+254773470577")
-    user_3=User(id=uuid.uuid4(), name="Charlie", phone_number="+254773470578")
+    user_1=User(id=uuid.uuid4(), name="Alice", phone_number="+254773470576",profile_picture="https://i.pinimg.com/474x/bf/e4/8c/bfe48c46e66c8e045e5382283201cb54.jpg")
+    user_2=User(id=uuid.uuid4(), name="Bob", phone_number="+254773470577",profile_picture="https://i.pinimg.com/474x/bf/e4/8c/bfe48c46e66c8e045e5382283201cb54.jpg")
+    user_3=User(id=uuid.uuid4(), name="Charlie", phone_number="+254773470578",profile_picture="https://i.pinimg.com/474x/bf/e4/8c/bfe48c46e66c8e045e5382283201cb54.jpg")
     
    
 
@@ -53,7 +53,8 @@ def seed():
     db.session.commit()
      
     message_status1=MessageStatus(user_id=user_1.id,message_id=message_1.id,delivered_at=datetime.utcnow(),seen_at=datetime.utcnow() )
-    db.session.add(message_status1)
+    message_status2=MessageStatus(user_id=user_2.id,message_id=message_2.id,delivered_at=datetime.utcnow(),seen_at=datetime.utcnow() )
+    db.session.add_all([message_status1,message_status2])
 
     #Bulk adding
     db.session.add_all([user_1, user_2, user_3])

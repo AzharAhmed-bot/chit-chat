@@ -15,21 +15,21 @@ export const getChats = async () => {
       return { success: false, data: [], error: e.toString() };
     }
   };
-export const getLatestMessagesBulk = async (chatIds) => {
+export const getChatMessages = async (chatIds) => {
     try {
-      const response = await fetch(
-        'http://localhost:5000/messages/latest',
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chatIds })
+      const response=await fetch(`http://localhost:5000/messages/${chatIds}`,{
+        method:"GET",
+        headers:{
+          'Content-Type':'application/json'
         }
-      )
-      const data = await response.json()
-      return {
-        success: response.ok,
-        data: data.latest   // { chatId: { content, ... }, … }
+      })
+      const data=await response.json()
+      if(response.status===200){
+        console.log(data)
+        return {success:response.ok,data:data.messages}
+      }
+      else{
+        return {success:false, data:[]}
       }
     } catch (e) {
       return { success: false, data: {} }
