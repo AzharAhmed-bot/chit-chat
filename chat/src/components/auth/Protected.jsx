@@ -1,11 +1,13 @@
 import React ,{useEffect} from 'react'
 import UseAuth from './UseAuth'
-import { Navigate,useNavigate } from 'react-router-dom'
+import Loading from 'pages/common/Loading'
+import { useNavigate } from 'react-router-dom'
 
 // protected.jsx
 function Protected({ children }) {
     const nav = useNavigate();
     const { isAuthenticated, isLoading } = UseAuth();
+
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -14,7 +16,7 @@ function Protected({ children }) {
     }, [isLoading, isAuthenticated, nav]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <Loading />
     }
 
     return isAuthenticated ? children : null;
