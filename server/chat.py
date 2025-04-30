@@ -7,7 +7,7 @@ from flask_session import Session
 from flask_jwt_extended import JWTManager, create_access_token
 from flask_bcrypt import Bcrypt
 from uuid import UUID
-import uuid
+from collections import defaultdict
 
 from config import AppConfig
 from model import db, User, Chat, ChatMembers, Message, Group
@@ -45,6 +45,7 @@ def make_session_permanent():
 # ——— Auth endpoints ———————————————————————————————————
 
 simulated_otp_store = {}
+connected_users=defaultdict(bool)
 
 class NewUser(Resource):
     def post(self):
@@ -192,8 +193,10 @@ class ChatMessages(Resource):
 
     def post(self, chat_id):
         data = request.get_json()
+        print(data)
         user_id = session.get('user').get('user_id')
         content = data.get('content')
+        sent_at=data.get('sent_at')
         if not user_id or not content:
             return {'message': 'user_id and content required'}, 400
 
@@ -202,7 +205,6 @@ class ChatMessages(Resource):
             user_id=UUID(user_id),
             type="text",
             content=content,
-            sent_at=datetime.utcnow()
         )
         db.session.add(new_msg)
         try:
@@ -211,12 +213,13 @@ class ChatMessages(Resource):
                 "chat_id":chat_id,
                 "user_id":user_id,
                 "content":content,
-                "sent_at":new_msg.sent_at.isoformat()
+                "sent_at":sent_at
             }
             socketio.emit('new_message', payload, room=chat_id)
             return {'message': 'Message sent successfully'}, 200
         except Exception as e:
             db.session.rollback()
+            print(e)
             return {'message': f'Error: {str(e)}'}, 500
 
 class Logout(Resource):
@@ -224,6 +227,12 @@ class Logout(Resource):
         session.clear()
         return {'message': 'Logout success'}, 200
 
+class UserStatus(Resource):
+    def get(self, user_id):
+        return {'is_online': connected_users.get(user_id, False)}, 200
+    
+
+api.add_resource(UserStatus, '/user-status/<string:user_id>')
 api.add_resource(UserChats, '/chats')
 api.add_resource(ChatMessages, '/messages/<string:chat_id>')
 api.add_resource(Logout, '/logout')
@@ -249,6 +258,27 @@ def handle_leave_room(data):
     if chat_id:
         leave_room(chat_id)
         print(f"User left room: {chat_id}")
+
+@socketio.on('connect')
+def handle_connect():
+    user = session.get('user')
+    if user:
+        connected_users[user['user_id']] = True
+        emit('user_status',{
+            "user":user['user_id'],
+            "is_connected":True
+        },broadcast=True)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    user = session.get('user')
+    if user:
+        connected_users[user['user_id']] = False
+        emit('user_status',{
+            "user":user['user_id'],
+            "is_connected":False
+        },broadcast=True)
+
 
 if __name__ == "__main__":
     socketio.run(app, port=5000, debug=True)

@@ -14,54 +14,59 @@ import ChartCard from './ChartCard';
 
 export default function ChatPage() {
   const { user } = UseAuth();
-  const [chatInfo, setChatInfo]=useState({
-    hasSelectedChat:false,
-    chat_name:"",
-    profile:""
-  })
+  const [chatInfo, setChatInfo] = useState({
+    hasSelectedChat: false,
+    chat_name: "",
+    profile: tech,
+    isOnline: false
+  });
   const [chats, setChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
 
+
+  // Fetch chats on mount and when user changes
   useEffect(() => {
     if (!user) return;
-    (async () => {
+    
+    const loadChats = async () => {
       const res = await getChats();
       if (res.success) setChats(res.data);
-    })();
+    };
+    
+    loadChats();
   }, [user]);
 
-  // default to first chat
+  // Set default chat if none selected
   useEffect(() => {
     if (chats.length && !activeChatId) {
       setActiveChatId(chats[0].chat_id);
     }
   }, [chats, activeChatId]);
 
+
+
   const peopleChats = chats.filter(c => !c.is_group);
   const groupChats = chats.filter(c => c.is_group);
 
-  const renderList = list =>
-    
-    list.map(chat => (
-      <div
-        key={chat.chat_id}
+  const renderList = list => list.map(chat => {
+
+
+    return (
+      <div key={chat.chat_id}
         onClick={() => {
-          setActiveChatId(chat.chat_id)
+          setActiveChatId(chat.chat_id);
           setChatInfo({
-            hasSelectedChat:true,
-            chat_name:chat.chat_name,
-            profile:tech
-          })
-        }
-        }
+            hasSelectedChat: true,
+            chat_name: chat.chat_name,
+            profile: tech,
+            is_group: chat.is_group
+          });
+        }}
       >
-        <ChartCard
-          chat={chat}
-          user={user}
-          activeChatId={activeChatId}
-        />
+        <ChartCard chat={chat} user={user} activeChatId={activeChatId}/>
       </div>
-    ));
+    );
+  });
 
   return (
     <div className="h-screen w-full overflow-hidden">
@@ -69,13 +74,13 @@ export default function ChatPage() {
         direction="horizontal"
         className="h-full flex w-full"
       >
-        {/* ─── LEFT ─── */}
+        {/* Left sidebar - Chat list */}
         <ResizablePanel
           defaultSize={25}
           minSize={25}
           maxSize={30}
         >
-          <div className="h-full flex flex-col overflow-auto  p-4 space-y-4">
+          <div className="h-full flex flex-col overflow-auto p-4 space-y-4">
             <h1 className="text-xl font-semibold">
               Welcome, {user}
             </h1>
@@ -106,9 +111,9 @@ export default function ChatPage() {
 
         <ResizableHandle withHandle />
 
-        {/* ─── RIGHT ─── */}
+        {/* Right panel - Messages */}
         <ResizablePanel>
-          <div className="h-full  w-full overflow-hidden">
+          <div className="h-full w-full overflow-hidden">
             <MessagesCard
               chatId={activeChatId}
               user={user}
