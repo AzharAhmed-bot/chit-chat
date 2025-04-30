@@ -56,6 +56,12 @@ export default function MessageCard({ user, chatId, chatInfo }) {
     }
   },[chatId,user])
 
+  function formatDate(date){
+    const pad=(num)=>String(num).padStart(2,'0')
+    return(
+      `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+    )
+  }
 
   async function postMessage() {
     const text = newMsg.content
@@ -64,19 +70,13 @@ export default function MessageCard({ user, chatId, chatInfo }) {
     const optimisticMsg = {
       user_id: user,
       content: text,
-      sent_at: new Date().toISOString()
+      sent_at: formatDate(new Date())
     }
 
     setMessages(prev => [...prev, optimisticMsg])
-    setNewMsg({
-      user_id: user,
-      content: "",
-      sent_at: null,
-      seen_at: null,
-      delete_at: null
-    })
+
     try{
-        const res=await postNewMessage(chatId,text)
+        const res=await postNewMessage(chatId,text,optimisticMsg.sent_at)
         if (!res.success) throw new Error(res.error || 'Server error')    
     }
     catch{
@@ -85,6 +85,13 @@ export default function MessageCard({ user, chatId, chatInfo }) {
         setErrorMessage('Something went wrong. Try again later')
 
     }
+    setNewMsg({
+      user_id: user,
+      content: "",
+      sent_at: null,
+      seen_at: null,
+      delete_at: null
+    })
 
   }
 

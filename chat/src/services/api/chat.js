@@ -52,7 +52,7 @@ export const getChatMessages = async (chatId) => {
 }
 
 
-export const postNewMessage= async(chatId,content)=>{
+export const postNewMessage= async(chatId,content,sent_at)=>{
     try{
       const response=await fetch(`http://localhost:5000/messages/${chatId}`,{
         method:'POST',
@@ -60,9 +60,7 @@ export const postNewMessage= async(chatId,content)=>{
         headers:{
           'Content-Type':'application/json'
         },
-        body:JSON.stringify({
-          content:content
-        })
+        body:JSON.stringify({content,sent_at})
       })
       const data=await response.json()
       if(response.status===200){

@@ -47,8 +47,8 @@ def seed():
     ])
     db.session.commit()
 
-    message_1=Message(id=uuid.uuid4(),user_id=user_1.id,chat_id=private_chat.id,type="text",content='Hey girl',sent_at=datetime.utcnow(),seen_at=datetime.utcnow())
-    message_2=Message(id=uuid.uuid4(),user_id=user_2.id,chat_id=private_chat.id,type="text",content='girllly',sent_at=datetime.utcnow())
+    message_1=Message(id=uuid.uuid4(),user_id=user_1.id,chat_id=private_chat.id,type="text",content='Hey girl',seen_at=datetime.utcnow())
+    message_2=Message(id=uuid.uuid4(),user_id=user_2.id,chat_id=private_chat.id,type="text",content='girllly')
     db.session.add_all([message_1,message_2])
     db.session.commit()
      
